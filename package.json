@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "clear && tsc",
+    "start": "npm run build && node build/index.js",
+    "start:dev": "npx nodemon",
+    "clear": "rm -rf build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +15,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.11.18",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   }
 }
