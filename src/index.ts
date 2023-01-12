@@ -2,33 +2,34 @@
 import * as http from 'node:http';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { URL } from 'node:url';
-import { RouteConfiguration, Router } from './router/router';
+import { RouteConfiguration } from './router/interfaces';
+import { Router } from './router/router';
 
 const routesConfiguration: RouteConfiguration[] = [
-    { 
+    {
         method: 'GET',
         path: 'api/users',
-        handler: () => { console.log('get users'); } 
+        handler: (params, req, res) => { res.end('get users'); } 
     },
     {
         method: 'GET',
         path: 'api/users/{userId}',
-        handler: () => { console.log('get user'); }
+        handler: (params, req, res) => { res.end(`get user ${params.userId}`); }
     },
     { 
         method: 'POST',
         path: 'api/users',
-        handler: () => { console.log('add user'); }
+        handler: (params, req, res) => { res.end('add user'); }
     },
     {
         method: 'PUT', 
-        path: 'api/users/{userId}', 
-        handler: () => { console.log('add user'); } 
+        path: 'api/users/{userId}',
+        handler: (params, req, res) => { res.end(`add user ${params.userId}`); } 
     },
     {
         method: 'DELETE', 
-        path: 'api/users/{userId}', 
-        handler: () => { console.log('delete user'); } 
+        path: 'api/users/{userId}',
+        handler: (params, req, res) => { res.end(`delete user ${params.userId}`); } 
     },
 ];
 
@@ -40,7 +41,7 @@ const requestListener = (req: IncomingMessage, res: ServerResponse) => {
     if (!resolvedRoute) {
         res.end('Route is not resolved');
     } else {
-        res.end(`Route is resolved with param values: ${JSON.stringify(resolvedRoute.paramValues)}.`);
+        resolvedRoute.handler(resolvedRoute.paramValues, req, res);
     }
 };
 

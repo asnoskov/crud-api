@@ -1,17 +1,4 @@
-type RouteHandler = (params: {[param: string]: string}) => void;
-
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
-
-export interface RouteConfiguration {
-    method: HttpMethod;
-    path: string;
-    handler: RouteHandler;
-}
-
-interface ResolvedRoute {
-    handler: RouteHandler,
-    paramValues: {[param: string]: string}
-}
+import { ResolvedRoute, RouteConfiguration, RouteHandler } from "./interfaces";
 
 interface RouteSegment {
     paramName?: string;
