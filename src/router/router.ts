@@ -14,10 +14,12 @@ interface ResolvedRoute {
 }
 
 interface RouteSegment {
-    name?: string;
+    paramName?: string;
     handler?: RouteHandler;
     segments: { [segmentName: string]: RouteSegment }
 }
+
+const PARAM_SEGMENT_KEY = "{param}";
 
 export class Router {
     private routeMap: { [method: string]: RouteSegment } = {};
@@ -28,13 +30,17 @@ export class Router {
 
     resolveRoute(httpMethod: string, path: string): ResolvedRoute | null {
         const pathSegments = path.split('/').filter(x => x);
-        const paramValues = {};
+        const paramValues: {[param: string]: string} = {};
         let currentSegmentConfig = this.routeMap[httpMethod];
-        let pathSegment;
-        while (pathSegment = pathSegments.shift()) {
-            currentSegmentConfig = currentSegmentConfig.segments[pathSegment];
+        let pathSegmentValue;
+        while (pathSegmentValue = pathSegments.shift()) {
+            currentSegmentConfig = currentSegmentConfig.segments[pathSegmentValue] 
+                || currentSegmentConfig.segments[PARAM_SEGMENT_KEY];
             if (!currentSegmentConfig) {
                 return null;
+            }
+            if (currentSegmentConfig.paramName) {
+                paramValues[currentSegmentConfig.paramName] = pathSegmentValue;
             }
         }
         if (!currentSegmentConfig.handler) {
@@ -53,10 +59,16 @@ export class Router {
             const pathSegmentsNames = path.split('/');
 
             let currentSegment = methodRoutesMap;
-            let segmentName;
+            let segmentName: string | undefined;
             while (segmentName = pathSegmentsNames.shift()) {
-                currentSegment.segments[segmentName] = currentSegment.segments[segmentName] || { segments: {} };
-                currentSegment = currentSegment.segments[segmentName];
+                const isParamSegment = segmentName.startsWith('{');
+                const segmentKey = isParamSegment ? PARAM_SEGMENT_KEY : segmentName;
+                currentSegment.segments[segmentKey] = currentSegment.segments[segmentKey] || { segments: {} };
+                currentSegment = currentSegment.segments[segmentKey];
+                if (isParamSegment) {
+                    const paramNameWithoutBrackets = segmentName.slice(1, segmentName.length - 1);
+                    currentSegment.paramName = paramNameWithoutBrackets;
+                }
             }
             currentSegment.handler = handler;
         }
