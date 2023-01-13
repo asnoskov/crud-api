@@ -1,47 +1,56 @@
-
 import * as http from 'node:http';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { URL } from 'node:url';
+import { UserRepository } from './data-access/user-repository';
 import { RouteConfiguration } from './router/interfaces';
 import { Router } from './router/router';
+import { UserController } from './user-controller';
 
+const userRepository = new UserRepository();
+const userController = new UserController(userRepository);
 const routesConfiguration: RouteConfiguration[] = [
     {
         method: 'GET',
         path: 'api/users',
-        handler: (params, req, res) => { res.end('get users'); } 
+        handler: userController.getUsers
     },
     {
         method: 'GET',
         path: 'api/users/{userId}',
-        handler: (params, req, res) => { res.end(`get user ${params.userId}`); }
+        handler: userController.getUserById
     },
     { 
         method: 'POST',
         path: 'api/users',
-        handler: (params, req, res) => { res.end('add user'); }
+        handler: userController.addUser
     },
     {
         method: 'PUT', 
         path: 'api/users/{userId}',
-        handler: (params, req, res) => { res.end(`add user ${params.userId}`); } 
+        handler: userController.updateUser
     },
     {
         method: 'DELETE', 
         path: 'api/users/{userId}',
-        handler: (params, req, res) => { res.end(`delete user ${params.userId}`); } 
+        handler: userController.deleteUser
     },
 ];
-
 const router = new Router(routesConfiguration);
 
 const requestListener = (req: IncomingMessage, res: ServerResponse) => {
-    const path = new URL(req.url || '', 'http://localhost').pathname;
-    const resolvedRoute = router.resolveRoute(req.method || '', path);
-    if (!resolvedRoute) {
-        res.end('Route is not resolved');
-    } else {
-        resolvedRoute.handler(resolvedRoute.paramValues, req, res);
+    try {
+        const path = new URL(req.url || '', 'http://localhost').pathname;
+        const resolvedRoute = router.resolveRoute(req.method || '', path);
+        if (!resolvedRoute) {
+            res.statusCode = 404;
+            res.end('Not Found');
+        } else {
+            resolvedRoute.handler(req, res, resolvedRoute.paramValues);
+        }
+    }
+    catch {
+        res.statusCode = 500;
+        res.end('Internal Server Error');
     }
 };
 

@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from "node:http";
 
-export type RouteHandler = (params: {[param: string]: string}, req: IncomingMessage, res: ServerResponse) => void;
+export type RouteHandler = (req: IncomingMessage, res: ServerResponse, params: {[param: string]: string}) => void;
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
