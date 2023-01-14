@@ -37,7 +37,7 @@ const routesConfiguration: RouteConfiguration[] = [
 ];
 const router = new Router(routesConfiguration);
 
-const requestListener = (req: IncomingMessage, res: ServerResponse) => {
+const requestListener = async (req: IncomingMessage, res: ServerResponse) => {
     try {
         const path = new URL(req.url || '', 'http://localhost').pathname;
         const resolvedRoute = router.resolveRoute(req.method || '', path);
@@ -45,10 +45,10 @@ const requestListener = (req: IncomingMessage, res: ServerResponse) => {
             res.statusCode = 404;
             res.end('Not Found');
         } else {
-            resolvedRoute.handler(req, res, resolvedRoute.paramValues);
+            await resolvedRoute.handler(req, res, resolvedRoute.paramValues);
         }
     }
-    catch {
+    catch (e) {
         res.statusCode = 500;
         res.end('Internal Server Error');
     }

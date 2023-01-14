@@ -1,3 +1,5 @@
 export const HttpResponseMessages = {
-    NotFound: 'Not Found'
+    NotFound: 'Not Found',
+    BadRequest:  'Bad Request',
+    Created: 'Created'
 }
