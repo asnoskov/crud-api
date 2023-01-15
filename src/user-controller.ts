@@ -38,7 +38,11 @@ export class UserController {
             const parsedUser = JSON.parse(str) as User;
             const id = uuid.v4();
             user = new User(id, parsedUser.userName, parsedUser.age, parsedUser.hobbies);
-            //todo: Server should answer with status code 400 and corresponding message if request body does not contain required fields
+            if (!user.checkIsValid()) {
+                res.statusCode = 400;
+                res.end(HttpResponseMessages.BadRequest);
+                return;
+            }
         }
         catch (e) {
             res.statusCode = 400;
