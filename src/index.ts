@@ -41,6 +41,7 @@ const requestListener = async (req: IncomingMessage, res: ServerResponse) => {
     try {
         const path = new URL(req.url || '', 'http://localhost').pathname;
         const resolvedRoute = router.resolveRoute(req.method || '', path);
+        console.log(`recieved request: ${req.method} ${path}`);
         if (!resolvedRoute) {
             res.statusCode = 404;
             res.end('Not Found');
