@@ -32,10 +32,10 @@ export class UserController {
     }
 
     addUser = async (req: IncomingMessage, res: ServerResponse, params: {[param: string]: string}) => {
-        const str = await readStreamToString(req);
+        const requestBody = await readStreamToString(req);
         let user: User;
         try {
-            const parsedUser = JSON.parse(str) as User;
+            const parsedUser = JSON.parse(requestBody) as User;
             const id = uuid.v4();
             user = new User(id, parsedUser.userName, parsedUser.age, parsedUser.hobbies);
             if (!user.checkIsValid()) {
@@ -56,10 +56,42 @@ export class UserController {
     }
 
     updateUser = async (req: IncomingMessage, res: ServerResponse, params: {[param: string]: string}) => {
-        //todo: Server should answer with status code 200 and updated record
-        //todo: Server should answer with status code 404 and corresponding message if record with id === userId doesn't exist
-        //todo: Server should answer with status code 400 and corresponding message if userId is invalid (not uuid)
-        res.end(`add user ${params.userId}`);
+        const requestBody = await readStreamToString(req);
+        let parsedUser: User;
+        try {
+            parsedUser = JSON.parse(requestBody) as User;
+            if (!uuid.validate(parsedUser.id)) {
+                res.statusCode = 400;
+                res.end('user id is not valid uuid');
+                return;
+            }
+        }
+        catch (e) {
+            res.statusCode = 400;
+            res.end(HttpResponseMessages.BadRequest);
+            return;
+        }
+
+        const user = this.userRepository.get(parsedUser.id);
+        if (!user) {
+            res.statusCode = 404;
+            res.end(HttpResponseMessages.NotFound);
+            return;
+        }
+
+        user.userName = parsedUser.userName;
+        user.age = parsedUser.age;
+        user.hobbies = parsedUser.hobbies;
+
+        if (!user.checkIsValid()) {
+            res.statusCode = 400;
+            res.end(HttpResponseMessages.BadRequest);
+            return;
+        }
+
+        this.userRepository.save(user);
+        res.statusCode = 200;
+        res.end(JSON.stringify(user));
     }
 
     deleteUser = async (req: IncomingMessage, res: ServerResponse, params: {[param: string]: string}) => {
