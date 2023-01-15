@@ -1,8 +1,9 @@
-import { IncomingMessage, ServerResponse } from "node:http";
-import { UserRepository } from "./data-access/user-repository";
+import { IncomingMessage, ServerResponse } from 'node:http';
+import * as uuid from 'uuid';
+import { UserRepository } from './data-access/user-repository';
 import { HttpResponseMessages } from './const/response-messages';
-import { readStreamToString } from "./utils/stream-utils";
-import { User } from "./entities/User";
+import { readStreamToString } from './utils/stream-utils';
+import { User } from './entities/User';
 
 export class UserController {
     constructor(private userRepository: UserRepository) {};
@@ -15,7 +16,11 @@ export class UserController {
 
     getUserById = async (req: IncomingMessage, res: ServerResponse, params: {[param: string]: string}) => {
         const { userId } = params;
-        //todo: Server should answer with status code 400 and corresponding message if userId is invalid (not uuid)
+        if (!uuid.validate(userId)) {
+            res.statusCode = 400;
+            res.end('user id is not valid uuid');
+            return;
+        }
         const user = this.userRepository.get(userId);
         if (!user) {
             res.statusCode = 404;
@@ -31,7 +36,8 @@ export class UserController {
         let user: User;
         try {
             const parsedUser = JSON.parse(str) as User;
-            user = new User(parsedUser.id, parsedUser.userName, parsedUser.age, parsedUser.hobbies);
+            const id = uuid.v4();
+            user = new User(id, parsedUser.userName, parsedUser.age, parsedUser.hobbies);
             //todo: Server should answer with status code 400 and corresponding message if request body does not contain required fields
         }
         catch (e) {
@@ -40,15 +46,9 @@ export class UserController {
             return;
         }
 
-        if (this.userRepository.get(user.id)) {
-            res.statusCode = 409;
-            res.end('User with this id already exists');
-            return;
-        }
-
         this.userRepository.save(user);
         res.statusCode = 201;
-        res.end(HttpResponseMessages.Created);
+        res.end(JSON.stringify(user));
     }
 
     updateUser = async (req: IncomingMessage, res: ServerResponse, params: {[param: string]: string}) => {
