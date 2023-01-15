@@ -8,7 +8,7 @@
     "start": "npm run build && node build/index.js",
     "start:dev": "npx nodemon",
     "clear": "rm -rf build",
-    "test": "jest test"
+    "test": "jest test --runInBand"
   },
   "keywords": [],
   "author": "",
