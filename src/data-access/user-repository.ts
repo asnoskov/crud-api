@@ -23,7 +23,7 @@ export class UserRepository {
     };
 
     delete(id: string) {
-        if (this.users[id]) {
+        if (!this.users[id]) {
             throw new Error('object with this id does not exist');
         }
         delete this.users[id];
