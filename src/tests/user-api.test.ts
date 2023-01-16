@@ -1,6 +1,8 @@
 import request from 'supertest';
+import * as dotenv from 'dotenv';
 
-const apiUrl = 'http://localhost:3000';
+dotenv.config();
+const apiUrl = `http://localhost:${process.env.API_PORT}`;
 
 test('GET /users should return empty list of users', async () => {
     const response = await request(apiUrl)

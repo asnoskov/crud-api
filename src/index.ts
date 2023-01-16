@@ -1,11 +1,13 @@
 import * as http from 'node:http';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { URL } from 'node:url';
+import * as dotenv from 'dotenv';
 import { UserRepository } from './data-access/user-repository';
 import { RouteConfiguration } from './router/interfaces';
 import { Router } from './router/router';
 import { UserController } from './user-controller';
 
+dotenv.config();
 const userRepository = new UserRepository();
 const userController = new UserController(userRepository);
 const routesConfiguration: RouteConfiguration[] = [
@@ -56,5 +58,5 @@ const requestListener = async (req: IncomingMessage, res: ServerResponse) => {
 };
 
 const server = http.createServer(requestListener);
-server.listen(3000);
+server.listen(process.env.API_PORT);
 console.log('server started');
