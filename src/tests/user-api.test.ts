@@ -157,8 +157,13 @@ test('POST /users should return HTTP 400 for invalid users', async () => {
         age: '30',
         hobbies: []
     }
+    const userWithWrongHobbies = {
+        userName: 'User',
+        age: '30',
+        hobbies: 'coding, sleeping'
+    }
 
-    const invalidUsers = [userWithoutAge, userWithoutHobbies, userWithoutName, userWithAgeAsString];
+    const invalidUsers = [userWithoutAge, userWithoutHobbies, userWithoutName, userWithAgeAsString, userWithWrongHobbies];
     for (const invalidUser of invalidUsers) {
         const invalidRequestBody = JSON.stringify(invalidUser);
         await request(apiUrl)
