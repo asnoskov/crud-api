@@ -4,7 +4,9 @@ This is a simple crud api app with in-memory users database.
 
 ## How to start the application
 
-1. Run 'npm run start:dev' script to run application in development mode (it will watch changes and rebuild app automaticaly).
+Run 'npm run start:dev' script to run application in development mode (it will watch changes and rebuild app automaticaly).
+
+Value of port on which application is running stored in .env file.
 
 ## How to start tests
 
@@ -13,8 +15,6 @@ This is a simple crud api app with in-memory users database.
 2. Run 'npm run test' script (in another terminal) to start e2e tests.
 
 ## Endpoints description:
-
-Value of port on which application is running should stored in .env file.
 
 Implemented endpoint api/users:
 
