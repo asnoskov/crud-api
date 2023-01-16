@@ -138,3 +138,33 @@ test('UPDATE /users/{userId} should update existing user', async () => {
     expect(updatedUserFromApi.age).toBe(newAge);
     expect(updatedUserFromApi.hobbies.length).toBe(newHobbies.length);
 });
+
+test('POST /users should return HTTP 400 for invalid users', async () => {
+    const userWithoutAge = {
+        userName: 'User',
+        hobbies: []
+    }
+    const userWithoutHobbies = {
+        userName: 'User',
+        age: 30
+    }
+    const userWithoutName = {
+        age: 30,
+        hobbies: []
+    }
+    const userWithAgeAsString = {
+        userName: 'User',
+        age: '30',
+        hobbies: []
+    }
+
+    const invalidUsers = [userWithoutAge, userWithoutHobbies, userWithoutName, userWithAgeAsString];
+    for (const invalidUser of invalidUsers) {
+        const invalidRequestBody = JSON.stringify(invalidUser);
+        await request(apiUrl)
+            .post(`/api/users/`)
+            .send(invalidRequestBody)
+            .set('Accept', 'application/json')
+            .expect(400);
+    }
+});
